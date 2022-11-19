@@ -11,6 +11,12 @@ add_executable(${TARGET} main.cpp)
 
 find_package(PkgConfig REQUIRED)
 
+#Static start
+set_target_properties(${TARGET} PROPERTIES LINK_SEARCH_START_STATIC 1)
+set_target_properties(${TARGET} PROPERTIES LINK_SEARCH_END_STATIC 1)
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#Static Libs
+
 set(LIBS_LIST mlpack)
 foreach(LIB IN LISTS LIBS_LIST)
     pkg_check_modules(${LIB} REQUIRED ${LIB})
@@ -26,5 +32,9 @@ if (OPENMP_FOUND)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
+
+#Set Linker flags
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+
 
 

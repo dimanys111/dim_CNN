@@ -46,11 +46,11 @@ int main()
     data::Split(dataset, train, valid, RATIO);
 
     const mat trainX = train.submat(1, 0, train.n_rows - 1, train.n_cols - 1);
-    const mat validX = valid.submat(1, 0, valid.n_rows - 1, valid.n_cols - 1);
-    const mat testX = test.submat(1, 0, test.n_rows - 1, test.n_cols - 1);
     const mat trainY = train.row(0) + 1;
+
+    const mat validX = valid.submat(1, 0, valid.n_rows - 1, valid.n_cols - 1);
     const mat validY = valid.row(0) + 1;
-    const mat testY = test.row(0) + 1;
+
 
     FFN<NegativeLogLikelihood<>, RandomInitialization> model;
     if (!mlpack::data::Load("model.bin", "model", model))
@@ -127,16 +127,19 @@ int main()
     model.Predict(trainX, predOut);
     arma::Row<size_t> predLabels = getLabels(predOut);
     double trainAccuracy = arma::accu(predLabels == trainY) / ( double )trainY.n_elem * 100;
+
     model.Predict(validX, predOut);
     predLabels = getLabels(predOut);
     double validAccuracy = arma::accu(predLabels == validY) / ( double )validY.n_elem * 100;
+
     std::cout << "Accuracy: train = " << trainAccuracy << "%,"<< "\t valid = " << validAccuracy << "%" << std::endl;
 
-    mat testPredOut;
-    model.Predict(testX,testPredOut);
-    arma::Row<size_t> testPred = getLabels(testPredOut);
-    double testAccuracy = arma::accu(testPred == testY) /( double )testY.n_elem * 100;
-    std::cout<<"Test Accuracy = "<< testAccuracy << std::endl;
+    model.Predict(test,predOut);
+    predLabels = getLabels(predOut);
+
+    data::Save("save.csv", predLabels, true);
+
+    std::cout<<"save.csv" << std::endl;
 
     return 0;
 }
